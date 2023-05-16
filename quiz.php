@@ -5,15 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="quiz.css" />
+    <script src="quiz.js"></script>
     <title>Quiz</title>
 </head>
 <body>
     <a id="meny" href="startsida.html">meny</a>
-    <a id="bild">bild</a>
-    <a id="alternativ_1" href="startsida.html">alternativ 1</a>
-    <a id="alternativ_2" href="startsida.html">alternativ 2</a>
-    <a id="alternativ_3" href="startsida.html">alternativ 3</a>
-    <a id="alternativ_4" href="startsida.html">alternativ 4</a>
-    <p id="frågorna">1/20</p>
+    <div id="quiz-container">
+        <?php include 'quiz_api.php'; ?>
+    </div>
 </body>
 </html>
