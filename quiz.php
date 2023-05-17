@@ -13,5 +13,6 @@
     <div id="quiz-container">
         <?php include 'quiz_api.php'; ?>
     </div>
+    <p id="fragorna"><?php echo $_SESSION['questionCounter'] . "/20"; ?></p>
 </body>
 </html>

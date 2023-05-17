@@ -1,5 +1,4 @@
 <?php
-
 $dbHost = "localhost";
 $dbUser = "root";
 $dbPassword = "";
@@ -16,40 +15,60 @@ function skrivRandomRad()
         exit();
     }
 
-    $result = mysqli_query($db, "SELECT id, svar, bild FROM quiz_fragor ORDER BY RAND() LIMIT 1");
+    $prevPictureId = isset($_SESSION['prevPictureId']) ? $_SESSION['prevPictureId'] : null;
+    $questionCounter = isset($_SESSION['questionCounter']) ? $_SESSION['questionCounter'] : 0;
 
-    if (mysqli_num_rows($result) > 0) {
+    if ($questionCounter >= 20) {
+        $questionCounter = 0;
+        $_SESSION['prevPictureId'] = null;
+    }
+
+    do {
+        $result = mysqli_query($db, "SELECT id, svar, bild FROM quiz_fragor WHERE id != '$prevPictureId' ORDER BY RAND() LIMIT 1");
         $row = mysqli_fetch_assoc($result);
         $id = $row['id'];
         $svar = $row['svar'];
         $bild = $row['bild'];
+    } while (!$id);
 
-        echo "<div id='bild-container'>";
-        echo "<img id='bild' src='data:image/jpeg;base64," . base64_encode($bild) . "' alt='Bild'>";
-        echo "</div>";
+    $_SESSION['prevPictureId'] = $id;
 
-        $alternativ = array("alternativ_1", "alternativ_2", "alternativ_3", "alternativ_4");
-        shuffle($alternativ);
+    echo "<div id='bild-container'>";
+    echo "<img id='bild' src='data:image/jpeg;base64," . base64_encode($bild) . "' alt='Bild'>";
+    echo "</div>";
 
-        $usedAnswers = array($svar); // Array to store used answers
+    $alternativ = array($svar);
 
-        foreach ($alternativ as $index => $altId) {
-            if ($index == 0) {
-                echo "<a class='alternativ' id='$altId' href='startsida.html'>$svar</a>";
-            } else {
-                $altResult = mysqli_query($db, "SELECT svar FROM quiz_fragor WHERE svar NOT IN ('" . implode("','", $usedAnswers) . "') ORDER BY RAND() LIMIT 1");
-                $altRow = mysqli_fetch_assoc($altResult);
-                $altSvar = $altRow['svar'];
-                $usedAnswers[] = $altSvar; // Add the new answer to the usedAnswers array
-                echo "<a class='alternativ' id='$altId' href='startsida.html'>$altSvar</a>";
-            }
+    while (count($alternativ) < 4) {
+        $altResult = mysqli_query($db, "SELECT svar FROM quiz_fragor WHERE svar != '$svar' ORDER BY RAND() LIMIT 1");
+        $altRow = mysqli_fetch_assoc($altResult);
+        $altSvar = $altRow['svar'];
+
+        if (!in_array($altSvar, $alternativ)) {
+            $alternativ[] = $altSvar;
         }
-    } else {
-        echo "No results found.";
     }
+
+    shuffle($alternativ);
+
+    $correctAnswerId = "";
+
+    foreach ($alternativ as $index => $altSvar) {
+        $altId = "alternativ_" . ($index + 1);
+
+        if ($index == 0) {
+            $correctAnswerId = $altId;
+        }
+
+        echo "<a class='alternativ' id='$altId' data-correct-answer='$svar' onclick='handleAnswerClick(this);'>$altSvar</a>";
+    }
+
+    $_SESSION['questionCounter'] = $questionCounter + 1;
 
     mysqli_close($db);
 }
+
+session_start();
 
 skrivRandomRad();
 ?>
