@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="quiz.css" />
-    <script src="quiz.js"></script>
     <title>Quiz</title>
 </head>
 <body>
@@ -13,6 +12,8 @@
     <div id="quiz-container">
         <?php include 'quiz_api.php'; ?>
     </div>
-    <p id="fragorna"><?php echo $_SESSION['questionCounter'] . "/20"; ?></p>
+    <p id="fragorna"><?php echo $_SESSION['questionCounter'] . "/" . $_SESSION['totalQuestions']; ?></p>
+    <input type="hidden" id="maxQuestionCounter" value="<?php echo $_SESSION['totalQuestions']; ?>">
+    <script src="quiz.js"></script>
 </body>
 </html>

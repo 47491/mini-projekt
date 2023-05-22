@@ -16,12 +16,6 @@ function skrivRandomRad()
     }
 
     $prevPictureId = isset($_SESSION['prevPictureId']) ? $_SESSION['prevPictureId'] : null;
-    $questionCounter = isset($_SESSION['questionCounter']) ? $_SESSION['questionCounter'] : 0;
-
-    if ($questionCounter >= 20) {
-        $questionCounter = 0;
-        $_SESSION['prevPictureId'] = null;
-    }
 
     do {
         $result = mysqli_query($db, "SELECT id, svar, bild FROM quiz_fragor WHERE id != '$prevPictureId' ORDER BY RAND() LIMIT 1");
@@ -63,12 +57,15 @@ function skrivRandomRad()
         echo "<a class='alternativ' id='$altId' data-correct-answer='$svar' onclick='handleAnswerClick(this);'>$altSvar</a>";
     }
 
-    $_SESSION['questionCounter'] = $questionCounter + 1;
-
     mysqli_close($db);
 }
 
 session_start();
+
+
+$result = mysqli_query($db, "SELECT COUNT(*) AS total FROM quiz_fragor");
+$row = mysqli_fetch_assoc($result);
+$_SESSION['totalQuestions'] = $row['total'];
 
 skrivRandomRad();
 ?>

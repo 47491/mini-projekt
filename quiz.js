@@ -28,10 +28,10 @@ window.addEventListener('DOMContentLoaded', function () {
     var alternativElements = document.getElementsByClassName('alternativ');
     var isAnswerSelected = false;
     var questionCounterElement = document.getElementById('fragorna');
-    var maxQuestionCounter = 20;
+    var maxQuestionCounter = document.getElementById('maxQuestionCounter').value;
 
     var currentQuestionCounter = sessionStorage.getItem('questionCounter');
-    if (!currentQuestionCounter) {
+    if (!currentQuestionCounter || currentQuestionCounter >= maxQuestionCounter || currentQuestionCounter === 0) {
         currentQuestionCounter = 1;
         sessionStorage.setItem('questionCounter', currentQuestionCounter);
     } else {
