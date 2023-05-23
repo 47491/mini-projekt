@@ -30,8 +30,8 @@ window.addEventListener('DOMContentLoaded', function () {
     var questionCounterElement = document.getElementById('fragorna');
     var maxQuestionCounter = document.getElementById('maxQuestionCounter').value;
 
-    var currentQuestionCounter = sessionStorage.getItem('questionCounter');
-    if (!currentQuestionCounter || currentQuestionCounter >= maxQuestionCounter || currentQuestionCounter === 0) {
+    var currentQuestionCounter = parseInt(sessionStorage.getItem('questionCounter'));
+    if (!currentQuestionCounter || currentQuestionCounter >= maxQuestionCounter || currentQuestionCounter <= 0) {
         currentQuestionCounter = 1;
         sessionStorage.setItem('questionCounter', currentQuestionCounter);
     } else {
@@ -59,6 +59,7 @@ window.addEventListener('DOMContentLoaded', function () {
         }, 1500);
 
         currentQuestionCounter++;
+
         questionCounterElement.textContent = currentQuestionCounter + '/' + maxQuestionCounter;
 
         if (currentQuestionCounter >= maxQuestionCounter) {
