@@ -38,6 +38,20 @@ window.addEventListener('DOMContentLoaded', function () {
         questionCounterElement.textContent = currentQuestionCounter + '/' + maxQuestionCounter;
     }
 
+    // Check if coming back from quiz_slut.php and reset question counter
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('resetCounter')) {
+        currentQuestionCounter = 1;
+        sessionStorage.setItem('questionCounter', currentQuestionCounter);
+    }
+
+    // Refresh page instantly when navigating back from quiz_slut.php
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+            location.reload();
+        }
+    });
+
     function handleAnswerClick(element) {
         if (isAnswerSelected) {
             return;
