@@ -198,3 +198,17 @@ h1 { text-align: center; }
     left: 90%;
     top: 5%;
   }
+
+
+  .refresh-symbol {
+    position: fixed;
+    top: 60%; 
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.refresh-symbol span {
+    font-size: 150px;
+}
+

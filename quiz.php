@@ -10,7 +10,14 @@
 <body>
     <a id="meny" href="startsida.html">meny</a>
     <div id="quiz-container">
-        <?php include 'quiz_api.php'; ?>
+        <?php
+
+        if (!isset($_SESSION['questionCounter'])) {
+            $_SESSION['questionCounter'] = 1;
+        }
+
+        include 'quiz_api.php';
+        ?>
     </div>
     <p id="fragorna"><?php echo $_SESSION['questionCounter'] . "/" . $_SESSION['totalQuestions']; ?></p>
     <input type="hidden" id="maxQuestionCounter" value="<?php echo $_SESSION['totalQuestions']; ?>">

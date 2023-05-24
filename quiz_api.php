@@ -57,15 +57,14 @@ function skrivRandomRad()
         echo "<a class='alternativ' id='$altId' data-correct-answer='$svar'>$altSvar</a>";
     }
 
-    $_SESSION['questionCounter']++; // Increment the question counter
+    $_SESSION['questionCounter']++; 
 
     if ($_SESSION['questionCounter'] > $_SESSION['totalQuestions']) {
-        $_SESSION['questionCounter'] = $_SESSION['totalQuestions']; // Limit the question counter to the total number of questions
+        $_SESSION['questionCounter'] = $_SESSION['totalQuestions']; 
     }
 
     mysqli_close($db);
 }
-
 
 session_start();
 
@@ -75,8 +74,18 @@ $_SESSION['totalQuestions'] = $row['total'];
 
 if (!isset($_SESSION['questionCounter']) || isset($_POST['answer'])) {
     $_SESSION['questionCounter'] = 1;
+    $_SESSION['wrongAnswers'] = 0; 
 } else {
     $_SESSION['questionCounter']++;
+}
+
+if (isset($_POST['answer'])) {
+    $selectedAnswer = $_POST['answer'];
+    $correctAnswer = $_POST['correctAnswer'];
+
+    if ($selectedAnswer !== $correctAnswer) {
+        $_SESSION['wrongAnswers']++;
+    }
 }
 
 skrivRandomRad();
