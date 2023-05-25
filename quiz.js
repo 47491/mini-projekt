@@ -2,6 +2,7 @@ window.addEventListener('DOMContentLoaded', function () {
   var bildContainer = document.getElementById('bild-container');
   var bild = document.getElementById('bild');
   var wrongAnswers = 0; // Initialize wrongAnswers count
+  var score = 0; // Initialize score count
 
   function adjustImageSize() {
     var containerWidth = bildContainer.offsetWidth;
@@ -65,6 +66,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     if (selectedAnswer === correctAnswer) {
       element.style.backgroundColor = 'green';
+      score++; // Increment score count
     } else {
       element.style.backgroundColor = 'red';
       wrongAnswers++; // Increment wrongAnswers count
@@ -95,5 +97,6 @@ window.addEventListener('DOMContentLoaded', function () {
 
   window.addEventListener('beforeunload', function () {
     sessionStorage.setItem('wrongAnswers', wrongAnswers); // Store wrongAnswers count in sessionStorage
+    sessionStorage.setItem('score', score); // Store score count in sessionStorage
   });
 });

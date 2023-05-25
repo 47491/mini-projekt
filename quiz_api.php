@@ -6,6 +6,8 @@ $dbName = "quiz";
 
 $db = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
 
+session_start(); 
+
 if (!function_exists('skrivRandomRad')) {
     function skrivRandomRad()
     {

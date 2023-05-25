@@ -1,33 +1,24 @@
 <?php
 session_start();
 
-$totalQuestions = $_SESSION['totalQuestions'] ?? 0;
-$correctAnswers = $_SESSION['correctAnswers'] ?? 0;
-
-// Assuming you have an array $userAnswers that stores the user's selected answers
-
-$userAnswers = $_SESSION['userAnswers'] ?? [];
-
-// Assuming you have an array $correctOptions that stores the correct options for each question
-
-$correctOptions = [
-    1 => 2, // For question 1, the correct option is 2
-    2 => 3, // For question 2, the correct option is 3
-    // Add more entries for other questions
-];
-
-// Iterate through the user's answers and check if they are correct
-foreach ($userAnswers as $questionNumber => $selectedOption) {
-    if (isset($correctOptions[$questionNumber]) && $selectedOption == $correctOptions[$questionNumber]) {
-        $correctAnswers++;
-    }
+// Check if the 'score' variable is set in the session
+if (isset($_SESSION['score'])) {
+    $score = $_SESSION['score'];
+} else {
+    $score = 0;
 }
 
-// Store the updated correctAnswers count in the session
-$_SESSION['correctAnswers'] = $correctAnswers;
+// Check if the 'questionCounter' and 'totalQuestions' variables are set in the session
+if (isset($_SESSION['questionCounter']) && isset($_SESSION['totalQuestions'])) {
+    $questionCounter = $_SESSION['questionCounter'];
+    $totalQuestions = $_SESSION['totalQuestions'];
+} else {
+    $questionCounter = 0;
+    $totalQuestions = 0;
+}
 
-// Reset the userAnswers array for the next quiz
-unset($_SESSION['userAnswers']);
+// Calculate the number of correct answers
+$correctAnswers = $questionCounter - $score;
 ?>
 
 <!DOCTYPE html>
@@ -37,7 +28,7 @@ unset($_SESSION['userAnswers']);
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="quiz.css" />
-    <title>Document</title>
+    <title>Quiz Result</title>
     <style>
         .refresh-symbol {
             position: fixed;
