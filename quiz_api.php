@@ -72,7 +72,7 @@ function skrivRandomRad()
 session_start();
 
 $result = mysqli_query($db, "SELECT COUNT(*) AS total FROM quiz_fragor");
-$_SESSION['totalQuestions'] = $row['total'];
+ $_SESSION['totalQuestions'] = $row['total'];
 
 if (!isset($_SESSION['questionCounter']) || isset($_POST['answer'])) {
     $_SESSION['questionCounter'] = 1;

@@ -4,8 +4,30 @@ session_start();
 $totalQuestions = $_SESSION['totalQuestions'] ?? 0;
 $correctAnswers = $_SESSION['correctAnswers'] ?? 0;
 
-// Reset the correctAnswers count for the next quiz
-unset($_SESSION['correctAnswers']);
+// Assuming you have an array $userAnswers that stores the user's selected answers
+
+$userAnswers = $_SESSION['userAnswers'] ?? [];
+
+// Assuming you have an array $correctOptions that stores the correct options for each question
+
+$correctOptions = [
+    1 => 2, // For question 1, the correct option is 2
+    2 => 3, // For question 2, the correct option is 3
+    // Add more entries for other questions
+];
+
+// Iterate through the user's answers and check if they are correct
+foreach ($userAnswers as $questionNumber => $selectedOption) {
+    if (isset($correctOptions[$questionNumber]) && $selectedOption == $correctOptions[$questionNumber]) {
+        $correctAnswers++;
+    }
+}
+
+// Store the updated correctAnswers count in the session
+$_SESSION['correctAnswers'] = $correctAnswers;
+
+// Reset the userAnswers array for the next quiz
+unset($_SESSION['userAnswers']);
 ?>
 
 <!DOCTYPE html>
@@ -62,7 +84,6 @@ unset($_SESSION['correctAnswers']);
     </style>
 </head>
 <body>
-    <h1>slut </h1>
     <h1><?php echo "Correct Answers: $correctAnswers / Total Questions: $totalQuestions"; ?></h1>
 
     <div class="custom-button">
@@ -76,5 +97,4 @@ unset($_SESSION['correctAnswers']);
     </div>
 
 </body>
-</html>
 </html>
