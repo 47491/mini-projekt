@@ -10,6 +10,7 @@
 <body>
     <a id="meny" href="startsida.html">meny</a>
     <div id="quiz-container">
+        <?php include 'quiz_api.php'; ?>
         <?php
 
         if (!isset($_SESSION['questionCounter'])) {

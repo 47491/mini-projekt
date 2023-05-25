@@ -62,6 +62,7 @@ unset($_SESSION['correctAnswers']);
     </style>
 </head>
 <body>
+    <h1>slut </h1>
     <h1><?php echo "Correct Answers: $correctAnswers / Total Questions: $totalQuestions"; ?></h1>
 
     <div class="custom-button">
@@ -75,4 +76,5 @@ unset($_SESSION['correctAnswers']);
     </div>
 
 </body>
+</html>
 </html>
