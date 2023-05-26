@@ -6,7 +6,7 @@ $dbName = "quiz";
 
 $db = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
 
-session_start(); 
+session_start();
 
 if (!function_exists('skrivRandomRad')) {
     function skrivRandomRad()
@@ -18,15 +18,32 @@ if (!function_exists('skrivRandomRad')) {
             exit();
         }
 
-        $prevPictureId = isset($_SESSION['prevPictureId']) ? $_SESSION['prevPictureId'] : null;
+        $prevPictureIds = isset($_SESSION['prevPictureIds']) ? $_SESSION['prevPictureIds'] : array();
+        $questionCounter = isset($_SESSION['questionCounter']) ? $_SESSION['questionCounter'] : 0;
 
-        $result = mysqli_query($db, "SELECT id, svar, bild FROM quiz_fragor WHERE id != '$prevPictureId' ORDER BY RAND() LIMIT 1");
+        if ($questionCounter % 11 === 1) {
+            $prevPictureIds = array();
+        }
+
+        $result = mysqli_query($db, "SELECT id, svar, bild FROM quiz_fragor WHERE id NOT IN ('" . implode("','", $prevPictureIds) . "') ORDER BY RAND() LIMIT 1");
+
+        if (!$result || mysqli_num_rows($result) == 0) {
+            echo "No more available pictures.";
+            mysqli_close($db);
+            return;
+        }
+
         $row = mysqli_fetch_assoc($result);
         $id = $row['id'];
         $svar = $row['svar'];
         $bild = $row['bild'];
 
-        $_SESSION['prevPictureId'] = $id;
+        $prevPictureIds[] = $id;
+        if (count($prevPictureIds) > 10) {
+            array_shift($prevPictureIds);
+        }
+
+        $_SESSION['prevPictureIds'] = $prevPictureIds;
 
         echo "<div id='bild-container'>";
         echo "<img id='bild' src='data:image/jpeg;base64," . base64_encode($bild) . "' alt='Bild'>";
@@ -59,10 +76,8 @@ if (!function_exists('skrivRandomRad')) {
         }
 
         $_SESSION['questionCounter']++;
-        $_SESSION['questionCounter']++;
 
         if ($_SESSION['questionCounter'] > $_SESSION['totalQuestions']) {
-            $_SESSION['questionCounter'] = $_SESSION['totalQuestions'];
             $_SESSION['questionCounter'] = $_SESSION['totalQuestions'];
         }
 

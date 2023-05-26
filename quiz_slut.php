@@ -1,14 +1,13 @@
 <?php
 session_start();
 
-// Check if the 'score' variable is set in the session
+
 if (isset($_SESSION['score'])) {
     $score = $_SESSION['score'];
 } else {
     $score = 0;
 }
 
-// Check if the 'questionCounter' and 'totalQuestions' variables are set in the session
 if (isset($_SESSION['questionCounter']) && isset($_SESSION['totalQuestions'])) {
     $questionCounter = $_SESSION['questionCounter'];
     $totalQuestions = $_SESSION['totalQuestions'];
@@ -17,7 +16,7 @@ if (isset($_SESSION['questionCounter']) && isset($_SESSION['totalQuestions'])) {
     $totalQuestions = 0;
 }
 
-// Calculate the number of correct answers
+
 $correctAnswers = $questionCounter - $score;
 ?>
 
