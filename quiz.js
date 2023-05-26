@@ -1,8 +1,8 @@
 window.addEventListener('DOMContentLoaded', function () {
   var bildContainer = document.getElementById('bild-container');
   var bild = document.getElementById('bild');
-  var wrongAnswers = 0; // Initialize wrongAnswers count
-  var score = 0; // Initialize score count
+  var wrongAnswers = 0;
+  var score = 0;
 
   function adjustImageSize() {
     var containerWidth = bildContainer.offsetWidth;
@@ -40,20 +40,6 @@ window.addEventListener('DOMContentLoaded', function () {
     questionCounterElement.textContent = currentQuestionCounter + '/' + maxQuestionCounter;
   }
 
-  // Check if coming back from quiz_slut.php and reset question counter
-  var urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('resetCounter')) {
-    currentQuestionCounter = 1;
-    sessionStorage.setItem('questionCounter', currentQuestionCounter);
-  }
-
-  // Refresh page instantly when navigating back from quiz_slut.php
-  window.addEventListener('pageshow', function (event) {
-    if (event.persisted) {
-      location.reload();
-    }
-  });
-
   function handleAnswerClick(element) {
     if (isAnswerSelected) {
       return;
@@ -66,10 +52,10 @@ window.addEventListener('DOMContentLoaded', function () {
 
     if (selectedAnswer === correctAnswer) {
       element.style.backgroundColor = 'green';
-      score++; // Increment score count
+      score++;
     } else {
       element.style.backgroundColor = 'red';
-      wrongAnswers++; // Increment wrongAnswers count
+      wrongAnswers++;
     }
 
     setTimeout(function () {
@@ -96,7 +82,7 @@ window.addEventListener('DOMContentLoaded', function () {
   }
 
   window.addEventListener('beforeunload', function () {
-    sessionStorage.setItem('wrongAnswers', wrongAnswers); // Store wrongAnswers count in sessionStorage
-    sessionStorage.setItem('score', score); // Store score count in sessionStorage
+    sessionStorage.setItem('wrongAnswers', wrongAnswers);
+    sessionStorage.setItem('score', score);
   });
 });
