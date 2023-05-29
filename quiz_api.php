@@ -12,18 +12,17 @@ function skrivRandomRad()
 {
     global $db;
 
-    $prevPictureIds = isset($_SESSION['prevPictureIds']) ? $_SESSION['prevPictureIds'] : array();
+    $prevQuestionIds = isset($_SESSION['prevQuestionIds']) ? $_SESSION['prevQuestionIds'] : array(); 
     $questionCounter = isset($_SESSION['questionCounter']) ? $_SESSION['questionCounter'] : 0;
 
     if ($questionCounter % 11 === 1) {
-        $prevPictureIds = array();
+        $prevQuestionIds = array();
     }
 
-    $result = mysqli_query($db, "SELECT id, svar, bild FROM quiz_fragor WHERE id NOT IN ('" . implode("','", $prevPictureIds) . "') ORDER BY RAND() LIMIT 1");
+    $result = mysqli_query($db, "SELECT id, svar, bild FROM quiz_fragor WHERE id NOT IN ('" . implode("','", $prevQuestionIds) . "') ORDER BY RAND() LIMIT 1"); // Get a random question that has not been shown before
 
     if (!$result || mysqli_num_rows($result) == 0) {
-        echo "No more available pictures.";
-        mysqli_close($db);
+        echo "Inga fler tillgängliga bilder.";
         return;
     }
 
@@ -32,16 +31,21 @@ function skrivRandomRad()
     $svar = $row['svar'];
     $bild = $row['bild'];
 
-    $prevPictureIds[] = $id;
-    if (count($prevPictureIds) > 10) {
-        array_shift($prevPictureIds);
+    $prevQuestionIds[] = $id;
+    if (count($prevQuestionIds) > 10) {
+        array_shift($prevQuestionIds);
     }
 
-    $_SESSION['prevPictureIds'] = $prevPictureIds;
+    $_SESSION['prevQuestionIds'] = $prevQuestionIds;
+
+    $imagePath = 'data:image/jpeg;base64,' . base64_encode($bild);
+    //list($width, $height) = adjustImageSize($imagePath, 100, 100);
 
     echo "<div id='bild-container'>";
-    echo "<img id='bild' src='data:image/jpeg;base64," . base64_encode($bild) . "' alt='Bild'>";
+    echo "<img id='bild' src='$imagePath' alt='Bild' style='width: 100px; height: 100px;'>";
     echo "</div>";
+
+    $_SESSION['correctAnswer'] = $svar;
 
     $alternativ = array($svar);
 
@@ -57,25 +61,20 @@ function skrivRandomRad()
 
     shuffle($alternativ);
 
-    $correctAnswerId = "";
-
+    echo "<form id='answer-form' action='quiz_api.php' method='POST'>";
     foreach ($alternativ as $index => $altSvar) {
         $altId = "alternativ_" . ($index + 1);
+        $buttonClass = ($altSvar == $_SESSION['correctAnswer']) ? 'correct' : 'wrong';
 
-        if ($index == 0) {
-            $correctAnswerId = $altId;
-        }
-
-        echo "<a class='alternativ' id='$altId' data-correct-answer='$svar'>$altSvar</a>";
+        echo "<button type='submit' class='alternativ $buttonClass' id='$altId' name='answer' value='$altSvar'>$altSvar</button>";
     }
+    echo "</form>";
 
     $_SESSION['questionCounter']++;
 
     if ($_SESSION['questionCounter'] > $_SESSION['totalQuestions']) {
         $_SESSION['questionCounter'] = $_SESSION['totalQuestions'];
     }
-
-    mysqli_close($db);
 }
 
 $result = mysqli_query($db, "SELECT COUNT(*) AS total FROM quiz_fragor");
@@ -84,19 +83,70 @@ $_SESSION['totalQuestions'] = $row['total'];
 
 if (!isset($_SESSION['questionCounter']) || isset($_POST['answer'])) {
     $_SESSION['questionCounter'] = 1;
-    $_SESSION['wrongAnswers'] = 0;
 } else {
     $_SESSION['questionCounter']++;
 }
 
-if (isset($_POST['answer'])) {
-    $selectedAnswer = $_POST['answer'];
-    $correctAnswer = $_POST['correctAnswer'];
-
-    if ($selectedAnswer !== $correctAnswer) {
-        $_SESSION['wrongAnswers']++;
-    }
-}
-
-skrivRandomRad();
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="quiz.css" />
+    <title>Quiz</title>
+    <style>
+        .correct {
+            background-color: green;
+            color: white;
+        }
+
+        .wrong {
+            background-color: red;
+            color: white;
+        }
+
+        .selected-correct {
+            background-color: green;
+            color: white;
+        }
+
+        .selected-wrong {
+            background-color: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <a id="meny" href="startsida.html">meny</a>
+    <div id="quiz-container">
+        <?php
+        skrivRandomRad();
+        ?>
+    </div>
+    <p id="fragorna"><?php echo $_SESSION['questionCounter'] . "/" . $_SESSION['totalQuestions']; ?></p>
+    <script>
+        // Get the answer buttons
+        const answerButtons = document.querySelectorAll('.alternativ');
+
+        // Add event listener to each button
+        answerButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Check if the selected answer is correct
+                const isCorrect = this.classList.contains('correct');
+
+                // Add CSS classes based on the correctness
+                this.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+                this.disabled = true;
+
+                // Refresh the page after 1.5 seconds
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+</html>

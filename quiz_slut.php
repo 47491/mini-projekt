@@ -1,24 +1,3 @@
-<?php
-session_start();
-
-
-if (isset($_SESSION['score'])) {
-    $score = $_SESSION['score'];
-} else {
-    $score = 0;
-}
-
-if (isset($_SESSION['questionCounter']) && isset($_SESSION['totalQuestions'])) {
-    $questionCounter = $_SESSION['questionCounter'];
-    $totalQuestions = $_SESSION['totalQuestions'];
-} else {
-    $questionCounter = 0;
-    $totalQuestions = 0;
-}
-
-
-$correctAnswers = $questionCounter - $score;
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -74,7 +53,7 @@ $correctAnswers = $questionCounter - $score;
     </style>
 </head>
 <body>
-    <h1><?php echo "Correct Answers: $correctAnswers / Total Questions: $totalQuestions"; ?></h1>
+    <h1>Slut</h1>
 
     <div class="custom-button">
         <a href="startsida.html">meny</a>

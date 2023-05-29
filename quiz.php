@@ -13,7 +13,6 @@
         <?php include 'quiz_api.php'; ?>
     </div>
     <p id="fragorna"><?php echo $_SESSION['questionCounter'] . "/" . $_SESSION['totalQuestions']; ?></p>
-    <input type="hidden" id="maxQuestionCounter" value="<?php echo $_SESSION['totalQuestions']; ?>">
     <script src="quiz.js"></script>
 </body>
 </html>
