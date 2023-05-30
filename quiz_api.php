@@ -1,94 +1,110 @@
 <?php
-$dbHost = "localhost";
-$dbUser = "root";
-$dbPassword = "";
-$dbName = "quiz";
+$dbHost = "localhost"; // Värd för databasen
+$dbUser = "root"; // Användarnamn för att ansluta till databasen
+$dbPassword = ""; // Lösenord för att ansluta till databasen
+$dbName = "quiz"; // Namnet på databasen
 
-$db = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
-
-session_start();
+session_start(); // Starta sessionshantering
 
 function skrivRandomRad()
 {
-    global $db;
+    global $dbHost, $dbUser, $dbPassword, $dbName;
 
-    $prevQuestionIds = isset($_SESSION['prevQuestionIds']) ? $_SESSION['prevQuestionIds'] : array(); 
-    $questionCounter = isset($_SESSION['questionCounter']) ? $_SESSION['questionCounter'] : 0;
+    // Anslut till databasen
+    $db = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
 
-    if ($questionCounter % 11 === 1) {
-        $prevQuestionIds = array();
+    $prevQuestionIds = isset($_SESSION['prevQuestionIds']) ? $_SESSION['prevQuestionIds'] : array();
+ 
+
+    // Anslut till databasen (endast om anslutningen är stängd)
+    if (!mysqli_ping($db)) {
+        mysqli_close($db); // Close the current connection
+        $db = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName); // Reconnect to the database
     }
 
-    $result = mysqli_query($db, "SELECT id, svar, bild FROM quiz_fragor WHERE id NOT IN ('" . implode("','", $prevQuestionIds) . "') ORDER BY RAND() LIMIT 1"); // Get a random question that has not been shown before
+    // Hämta en slumpmässig fråga som inte har visats tidigare
+    $result = mysqli_query($db, "SELECT id, svar, bild FROM quiz_fragor WHERE id NOT IN ('" . implode("','", $prevQuestionIds) . "') ORDER BY RAND() LIMIT 1");
 
-    if (!$result || mysqli_num_rows($result) == 0) {
-        echo "Inga fler tillgängliga bilder.";
-        return;
+    if ($result && mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+
+        // Spara frågans id i sessionen
+        $prevQuestionIds[] = $row['id'];
+        $_SESSION['prevQuestionIds'] = $prevQuestionIds;
+
+        // Räkna upp frågetäljaren
+
+
+        mysqli_close($db); // Close the database connection
+
+        return $row;
     }
 
-    $row = mysqli_fetch_assoc($result);
-    $id = $row['id'];
-    $svar = $row['svar'];
-    $bild = $row['bild'];
+    mysqli_close($db); // Close the database connection
 
-    $prevQuestionIds[] = $id;
-    if (count($prevQuestionIds) > 10) {
-        array_shift($prevQuestionIds);
-    }
-
-    $_SESSION['prevQuestionIds'] = $prevQuestionIds;
-
-    $imagePath = 'data:image/jpeg;base64,' . base64_encode($bild);
-    //list($width, $height) = adjustImageSize($imagePath, 100, 100);
-
-    echo "<div id='bild-container'>";
-    echo "<img id='bild' src='$imagePath' alt='Bild' style='width: 100px; height: 100px;'>";
-    echo "</div>";
-
-    $_SESSION['correctAnswer'] = $svar;
-
-    $alternativ = array($svar);
-
-    while (count($alternativ) < 4) {
-        $altResult = mysqli_query($db, "SELECT svar FROM quiz_fragor WHERE svar != '$svar' ORDER BY RAND() LIMIT 1");
-        $altRow = mysqli_fetch_assoc($altResult);
-        $altSvar = $altRow['svar'];
-
-        if (!in_array($altSvar, $alternativ)) {
-            $alternativ[] = $altSvar;
-        }
-    }
-
-    shuffle($alternativ);
-
-    echo "<form id='answer-form' action='quiz_api.php' method='POST'>";
-    foreach ($alternativ as $index => $altSvar) {
-        $altId = "alternativ_" . ($index + 1);
-        $buttonClass = ($altSvar == $_SESSION['correctAnswer']) ? 'correct' : 'wrong';
-
-        echo "<button type='submit' class='alternativ $buttonClass' id='$altId' name='answer' value='$altSvar'>$altSvar</button>";
-    }
-    echo "</form>";
-
-    $_SESSION['questionCounter']++;
-
-    if ($_SESSION['questionCounter'] > $_SESSION['totalQuestions']) {
-        $_SESSION['questionCounter'] = $_SESSION['totalQuestions'];
-    }
+    return null;
 }
 
-$result = mysqli_query($db, "SELECT COUNT(*) AS total FROM quiz_fragor");
-$row = mysqli_fetch_assoc($result);
-$_SESSION['totalQuestions'] = $row['total'];
+function sparaSvar($answer, $id)
+{
+    global $dbHost, $dbUser, $dbPassword, $dbName;
 
-if (!isset($_SESSION['questionCounter']) || isset($_POST['answer'])) {
-    $_SESSION['questionCounter'] = 1;
+    // Anslut till databasen
+    $db = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
+
+    $query = "SELECT svar FROM quiz_fragor WHERE id = '$id'";
+    $result = mysqli_query($db, $query);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        $correctAnswer = $row['svar'];
+
+        $isCorrect = $answer === $correctAnswer ? 1 : 0;
+
+        // Spara svaret i databasen
+        $insertQuery = "INSERT INTO quiz_svar (fraga_id, svar, korrekt) VALUES ('$id', '$answer', '$isCorrect')";
+        mysqli_query($db, $insertQuery);
+
+        mysqli_close($db); // Close the database connection
+
+        return $isCorrect;
+    }
+
+    mysqli_close($db); // Close the database connection
+
+    return 0;
+}
+
+$question = skrivRandomRad();
+
+if ($question) {
+    $response = array(
+        'id' => $question['id'],
+        'bild' => $question['bild']
+    );
+
+    echo json_encode($response);
 } else {
-    $_SESSION['questionCounter']++;
+    echo json_encode(null);
 }
 
-?>
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
 
+    if (isset($data['answer']) && isset($data['ID'])) {
+        $answer = $data['answer'];
+        $id = $data['ID'];
+
+        $isCorrect = sparaSvar($answer, $id);
+
+        $response = array(
+            'correct' => $isCorrect
+        );
+
+        echo json_encode($response);
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,50 +114,91 @@ if (!isset($_SESSION['questionCounter']) || isset($_POST['answer'])) {
     <link rel="stylesheet" type="text/css" href="quiz.css" />
     <title>Quiz</title>
     <style>
-        .correct {
-            background-color: green;
-            color: white;
+        #quiz-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .wrong {
-            background-color: red;
-            color: white;
+        #bild-container {
+            margin-bottom: 20px;
         }
 
-        .selected-correct {
-            background-color: green;
-            color: white;
+        #alternativ {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
-        .selected-wrong {
-            background-color: red;
-            color: white;
+        .alternativ {
+            margin: 5px;
         }
     </style>
 </head>
 <body>
-    <a id="meny" href="startsida.html">meny</a>
+    
     <div id="quiz-container">
         <?php
-        skrivRandomRad();
+        
+        if ($question) {
+            // Display the image
+            $imageData = base64_encode($question['bild']);
+            echo '<div id="bild-container">';
+            echo '<img id="bild" src="data:image/jpeg;base64,' . $imageData . '" alt="Frågebild" />';
+            echo '</div>';
+        
+            // Display the answer options
+            echo '<div id="alternativ">';
+            // Display the correct answer
+            echo '<button id="alternativ_1" class="alternativ correct">' . $question['svar'] . '</button>';
+        
+            // Display three additional random answer options
+            $db = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
+            $query = "SELECT svar FROM quiz_fragor WHERE id != '{$question['id']}' ORDER BY RAND() LIMIT 3";
+            $result = mysqli_query($db, $query);
+            $counter = 2;
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo '<button id="alternativ_'.$counter.'" class="alternativ">' . $row['svar'] . '</button>';
+                $counter++;
+            }
+            mysqli_close($db);
+            echo '</div>';
+        }
+        
         ?>
+        
     </div>
-    <p id="fragorna"><?php echo $_SESSION['questionCounter'] . "/" . $_SESSION['totalQuestions']; ?></p>
-    <script>
-        // Get the answer buttons
-        const answerButtons = document.querySelectorAll('.alternativ');
 
-        // Add event listener to each button
+    <script>
+        // Hämta svarsknapparna
+        const answerButtons = document.querySelectorAll('#alternativ .alternativ');
+
+        // Lägg till händelselyssnare på svarsknapparna
         answerButtons.forEach(button => {
             button.addEventListener('click', function() {
-                // Check if the selected answer is correct
-                const isCorrect = this.classList.contains('correct');
+                const selectedButton = this;
 
-                // Add CSS classes based on the correctness
-                this.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
-                this.disabled = true;
+                // Markera rätt svar genom att tilldela CSS-klassen "correct"
+                const correctButton = document.querySelector('#alternativ .correct');
+                correctButton.classList.add('correct');
 
-                // Refresh the page after 1.5 seconds
+                // Markera felaktiga svar genom att tilldela CSS-klassen "wrong"
+                const wrongButtons = document.querySelectorAll('#alternativ .alternativ:not(.correct)');
+                wrongButtons.forEach(button => button.classList.add('wrong'));
+
+                // Markera det valda svaret
+                if (selectedButton.classList.contains('correct')) {
+                    selectedButton.classList.add('selected-correct');
+                } else {
+                    selectedButton.classList.add('selected-wrong');
+                }
+
+                // Inaktivera svarsknapparna
+                answerButtons.forEach(button => {
+                    button.disabled = true;
+                });
+
+                // Ladda om sidan efter 1,5 sekunder
                 setTimeout(() => {
                     location.reload();
                 }, 1500);
