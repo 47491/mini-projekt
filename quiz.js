@@ -13,7 +13,7 @@ window.window.onload =function (){
   if(!ratt){
     sessionStorage.setItem("ratt",0);
   }
-  console.log(ratt);
+
 
 var alternatives = document.getElementsByClassName('alternativ');
 
@@ -76,7 +76,7 @@ for (var i = 0; i < alternatives.length; i++) {
 
         setTimeout(function () {
         location.reload();
-        }, 3000);
+        }, 1500);
         
       })
   });

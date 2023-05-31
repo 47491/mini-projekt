@@ -43,7 +43,7 @@ if ($result) {
     }
 
     // Skicka svar
-    skickaJSON(['correct' => $utskrift, 'dbsvar'=>$dbsvar, "rätt"=>$svarratt]);
+    skickaJSON(['utskrift' => $utskrift, 'dbsvar'=>$dbsvar, "rätt"=>$svar]);
 } else {
     // Hantera fallet när ingen data hittas för det angivna ID:et
 

@@ -29,7 +29,7 @@ function skrivRandomRad()
 
     // Hämta en slumpmässig fråga som inte har visats tidigare
     //$result = mysqli_query($db, "SELECT ID, Svar, Bild FROM quiz_fragor WHERE ID NOT IN ('" . implode("','", $prevQuestionIds) . "') ORDER BY RAND() LIMIT 1");
-
+    
     // Check if $prevQuestionIds is empty
 if (empty($prevQuestionIds)) {
     $result = mysqli_query($db, "SELECT ID, Svar, Bild FROM quiz_fragor ORDER BY RAND() LIMIT 1");
@@ -54,23 +54,66 @@ if (empty($prevQuestionIds)) {
         $prevQuestionIds[] = $row['ID'];
         $_SESSION['prevQuestionIds'] = $prevQuestionIds;
 
-        // Räkna upp frågetäljaren
-        $questionCounter++;
-        $_SESSION['questionCounter'] = $questionCounter;
+       
 
+    $maxQuestionCount = getMaxQuestionCount();
 
-        mysqli_close($db); // Close the database connection
+    if ($questionCounter >= $maxQuestionCount) {
+        $_SESSION['questionCounter'] = 0; 
+        header("Location: quiz_slut.php");
+        exit;
+    }
+        mysqli_close($db);
 
         return $row;
     }
 
-    mysqli_close($db); // Close the database connection
+    mysqli_close($db); 
 
     return null;
 }
 
 $question = skrivRandomRad();
 //var_dump($question);
+
+
+
+function getMaxQuestionCount()
+{
+    global $dbHost, $dbUser, $dbPassword, $dbName;
+
+    // Connect to the database
+    $db = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
+
+    // Execute the SQL query to get the maximum question count
+    $result = mysqli_query($db, "SELECT COUNT(*) AS maxQuestionCount FROM quiz_fragor");
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        $maxQuestionCount = $row['maxQuestionCount'];
+
+        mysqli_free_result($result);
+        mysqli_close($db);
+
+        return $maxQuestionCount;
+    }
+
+    mysqli_close($db);
+
+    return null;
+}
+
+
+$maxQuestions = getMaxQuestionCount();
+echo "Maximum Questions: " . $maxQuestions;
+
+
+
+
+
+
+
+
 
 ?>
 
