@@ -8,6 +8,13 @@ function shuffleArray(array) {
   }
 }
 
+window.window.onload =function (){
+  let ratt = sessionStorage.getItem("ratt");
+  if(!ratt){
+    sessionStorage.setItem("ratt",0);
+  }
+  console.log(ratt);
+
 var alternatives = document.getElementsByClassName('alternativ');
 
 // Create an array of all the alternatives (including the correct answer)
@@ -18,6 +25,7 @@ shuffleArray(allAlternatives);
 
 // Get the container element for the alternatives
 var alternativesContainer = document.getElementById('alternativ');
+
 
 // Clear the existing alternatives
 alternativesContainer.innerHTML = '';
@@ -31,7 +39,8 @@ for (var i = 0; i < alternatives.length; i++) {
   var alternative = alternatives[i];
   alternative.addEventListener('click', function () {
     var selectedAnswer = this.textContent;
-    var answerId = this.getAttribute('id');
+    var question = document.getElementById('bild')
+    var qid = question.getAttribute('data-qId');
 
     // Clear previous selections
     for (var j = 0; j < alternatives.length; j++) {
@@ -43,15 +52,13 @@ for (var i = 0; i < alternatives.length; i++) {
 
     var button = this;
 
+    let FD = new FormData();
+    FD.append("svar", selectedAnswer);
+    FD.append("ID", qid);
+
     fetch('quiz_answer.php', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        answer: selectedAnswer,
-        ID: answerId
-      })
+      body: FD
     })
       .then(function (response) {
         return response.json();
@@ -60,26 +67,19 @@ for (var i = 0; i < alternatives.length; i++) {
         console.log(data);
         if (data.correct) {
           button.classList.add('correct');
+          ratt++;
+          sessionStorage.setItem("ratt",ratt);
         } else {
           button.classList.add('wrong');
-          var correctButton = document.querySelector('#alternativ .correct');
-          correctButton.classList.add('correct');
         }
         button.disabled = true;
 
-        var countdown = 3;
-        var countdownInterval = setInterval(function () {
-          button.textContent = countdown;
-          countdown--;
-
-          if (countdown < 0) {
-            clearInterval(countdownInterval);
-            location.reload();
-          }
-        }, 1000);
+        setTimeout(function () {
+        location.reload();
+        }, 3000);
+        
       })
-      .catch(function (error) {
-        console.error(error);
-      });
   });
 }
+
+      }
