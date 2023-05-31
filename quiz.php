@@ -123,51 +123,13 @@ echo "Maximum Questions: " . $maxQuestions;
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="quiz.css">
-    <script src="quiz.js"></script>
+    <link rel="stylesheet" type="text/css" href="quiz.css" />
     <title>Quiz</title>
-
 </head>
 <body>
-    
-<div id="quiz-container">
-    <?php
-    if ($question) {
-        // Display the question text
-        echo '<div id="fraga-container">';
-        echo '<p id="fraga">' . $question['Svar'] . '</p>';
-        echo '</div>';
-
-        // Display the image
-        $imageData = base64_encode($question['Bild']);
-        echo '<div id="bild-container">';
-        echo '<img id="bild" data-qId="'. $question['ID'].'" src="data:image/jpeg;base64,' . $imageData . '" alt="Frågebild" />';
-        echo '</div>';
-
-        // Display the answer options
-        echo '<div id="alternativ">';
-        // Display the correct answer
-        echo '<button id="'.$question['ID'].'" class="alternativ">' . $question['Svar'] . '</button>';
-
-        // Display three additional random answer options
-        $db = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
-        $query = "SELECT Svar, ID FROM quiz_fragor WHERE ID != '{$question['ID']}' ORDER BY RAND() LIMIT 3";
-        $result = mysqli_query($db, $query);
-        while ($row = mysqli_fetch_assoc($result)) {
-            echo '<button id="'.$row['ID'].'" class="alternativ">' . $row['Svar'] . '</button>';
-        }
-        mysqli_close($db);
-
-        echo '</div>';
-    }
-    ?>
-</div>
-
-
-    <script>
-        
-
-        
-    </script>
+    <div id="quiz-container">
+        <?php include 'quiz_api.php'; ?>
+    </div>
+    <script src="quiz.js"></script>
 </body>
 </html>

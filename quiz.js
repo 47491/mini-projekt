@@ -13,7 +13,7 @@ window.window.onload =function (){
   if(!ratt){
     sessionStorage.setItem("ratt",0);
   }
-
+  //console.log(ratt);
 
 var alternatives = document.getElementsByClassName('alternativ');
 
