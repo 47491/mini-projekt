@@ -1,7 +1,7 @@
 <?php
 
 declare (strict_types=1);
-
+session_start();
 // Inkludera gemensamma funktioner
 require_once "funktioner.php";
 
@@ -38,6 +38,9 @@ if ($result) {
     // Exempel: Formatera utskrift med den bearbetade datan
     if ($dbsvar == $svarratt){ 
         $utskrift = 1;
+       $ratt=$_SESSION['ratt'];
+       $ratt++;
+       $_SESSION['ratt']=$ratt;
     } else {
         $utskrift = 0;
     }

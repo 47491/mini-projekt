@@ -1,4 +1,11 @@
+<?php
+session_start();
 
+$ratt = isset($_SESSION['ratt']) ? $_SESSION['ratt'] : 0;
+$questionCounter = isset($_SESSION['questionCounter']) ? $_SESSION['questionCounter'] : 0;
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,14 +57,18 @@
             text-decoration: none;
             color: inherit;
         }
+
+        #ratt-counter {
+            font-size: 24px;
+            text-align: center;
+            margin-top: 50px;
+        }
     </style>
 </head>
 <body>
     <h1>Slut</h1>
 
-    <div class="custom-button">
-        <a href="startsida.html">meny</a>
-    </div>
+    <div id="ratt-counter">rätt svar <?php echo $ratt; ?> av <?php echo $questionCounter ?></div>
 
     <div class="refresh-symbol">
         <a href="quiz.php">
@@ -67,3 +78,8 @@
 
 </body>
 </html>
+<?php
+
+$_SESSION['questionCounter']=0;
+$_SESSION['ratt']=0;
+
