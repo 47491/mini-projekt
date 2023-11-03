@@ -82,13 +82,17 @@ h1 {
   transform: scale(1.1);
 }
 
+.correct {
+  background-color: #10B7FE;
+  color: black;
+}
 
 .wrong {
   background-color: red;
   color: black;
 }
 
-.correct {
+.selected-correct {
   background-color: green;
   color: black;
 }

@@ -13,7 +13,7 @@ window.onload = function () {
   if (!ratt) {
     sessionStorage.setItem("ratt", 0);
   }
-  console.log(ratt);
+  //console.log(ratt);
 
   var alternatives = document.getElementsByClassName('alternativ');
   var questionCounter = 0; // Initialize the question counter
@@ -30,9 +30,61 @@ window.onload = function () {
   // Clear the existing alternatives
   alternativesContainer.innerHTML = '';
 
-  // Append the shuffled alternatives to the container
-  allAlternatives.forEach(function (alternative) {
-    alternativesContainer.appendChild(alternative);
+}
+// Clear the existing alternatives
+alternativesContainer.innerHTML = '';
+
+
+// Append the shuffled alternatives to the container
+allAlternatives.forEach(function(alternative) {
+  alternativesContainer.appendChild(alternative);
+});
+
+for (var i = 0; i < alternatives.length; i++) {
+  var alternative = alternatives[i];
+  alternative.addEventListener('click', function () {
+    var selectedAnswer = this.textContent;
+    var question = document.getElementById('bild')
+    var qid = question.getAttribute('data-qId');
+
+    // Clear previous selections
+    for (var j = 0; j < alternatives.length; j++) {
+      alternatives[j].classList.remove('selected', 'correct', 'wrong');
+    }
+
+    // Apply selected class to the clicked option
+    this.classList.add('selected');
+
+    var button = this;
+
+    let FD = new FormData();
+    FD.append("svar", selectedAnswer);
+    FD.append("ID", qid);
+
+    fetch('quiz_answer.php', {
+      method: 'POST',
+      body: FD
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        console.log(data);
+        if (data.correct) {
+          button.classList.add('correct');
+          ratt++;
+          sessionStorage.setItem("ratt",ratt);
+        } else {
+          button.classList.add('wrong');
+        }
+        button.disabled = true;
+
+        setTimeout(function () {
+        location.reload();
+        }, 1500);
+        
+      })
+
   });
 
   var buttonClicked = false; // Flag to check if a button is already clicked

@@ -35,6 +35,9 @@ if ($result) {
     // Exempel: Omvandla $svar till stora bokstäver
     $svarratt = strtoupper($svar);
 
+    // Exempel: Räkna antalet tecken i $svar
+    $antalTecken = strlen($svar);
+
     // Exempel: Formatera utskrift med den bearbetade datan
     if ($dbsvar == $svarratt){ 
         $utskrift = 1;
@@ -46,7 +49,7 @@ if ($result) {
     }
 
     // Skicka svar
-    skickaJSON(['correct' => $utskrift, 'dbsvar'=>$dbsvar, "rätt"=>$svarratt]);
+    skickaJSON(['utskrift' => $utskrift]);
 } else {
     // Hantera fallet när ingen data hittas för det angivna ID:et
 
