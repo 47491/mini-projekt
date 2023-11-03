@@ -1,8 +1,13 @@
 <?php
-$dbHost = "localhost"; // Värd för databasen
+/*$dbHost = "localhost"; // Värd för databasen
 $dbUser = "root"; // Användarnamn för att ansluta till databasen
 $dbPassword = ""; // Lösenord för att ansluta till databasen
 $dbName = "quiz"; // Namnet på databasen
+*/
+$dbHost = "localhost"; // Värd för databasen
+$dbUser = "47491"; // Användarnamn för att ansluta till databasen
+$dbPassword = "Aa251366"; // Lösenord för att ansluta till databasen
+$dbName = "DB47491"; // Namnet på databasen
 
 session_start(); // Starta sessionshantering
 

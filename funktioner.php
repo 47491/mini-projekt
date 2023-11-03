@@ -6,11 +6,16 @@ function connectDB(): PDO {
     static $db = null;
 
     if ($db === null) {
-        // Koppla mot databasen
+       /* // Koppla mot databasen
         $dsn = 'mysql:dbname=quiz;host=localhost';
         $dbUser = 'root';
         $dbPassword = "";
+        */
+        $dsn = 'mysql:dbname=DB47491;host=localhost';
+        $dbUser = '47491';
+        $dbPassword = "Aa251366";
         $db = new PDO($dsn, $dbUser, $dbPassword);
+        
     }
 
     return $db;
